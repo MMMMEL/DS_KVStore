@@ -7,12 +7,13 @@ import java.io.DataOutputStream;
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
-import java.net.SocketTimeoutException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
-public class ServerTCP implements Server{
-
+public class ServerTCP implements Server, Runnable{
     private ServerSocket serverSocket;
     private int serverPort = -1;
+    private ExecutorService threadPool = Executors.newFixedThreadPool(10);
 
     /**
      * Set port number to the server
@@ -29,9 +30,10 @@ public class ServerTCP implements Server{
     public void fulfilRequest (Socket socket) {
         try {
             DataInputStream dis = new DataInputStream(socket.getInputStream());
-            String request = dis.readUTF();
-            ServiceLog.infoLog("Get request: " + request);
-            String response = service.process(request);
+            String order = dis.readUTF();
+            String[] request = order.split(",");
+            ServiceLog.infoLog("Get request from client " + request[0] + ": " + request[1]);
+            String response = service.process(request[1]);
             ServiceLog.infoLog("Finish request, result: " + response);
             DataOutputStream dos = new DataOutputStream (socket.getOutputStream());
             dos.writeUTF(response);
@@ -56,17 +58,28 @@ public class ServerTCP implements Server{
 
         while (true) {
             try {
+                ServiceLog.infoLog("server sleeps");
+                Thread.sleep(1000);
+                ServiceLog.infoLog("server awakes");
+            } catch (Exception e) {
+                ServiceLog.warnLog("Thread sleep error!\n" + e.getMessage());
+            }
+
+            try {
                 Socket socket = serverSocket.accept();
                 socket.setSoTimeout(10 * 1000);
-                fulfilRequest (socket);
-                socket.close();
-            } catch (SocketTimeoutException e) {
-                ServiceLog.warnLog("Server connection timeout!");
+                this.threadPool.execute(() -> {
+                    fulfilRequest (socket);
+                });
             } catch (Exception e) {
                 ServiceLog.warnLog(e.getMessage());
             }
         }
+    }
 
+    @Override
+    public void run() {
+        start();
     }
 
     @Override
@@ -88,6 +101,7 @@ public class ServerTCP implements Server{
 
         ServerTCP server = new ServerTCP();
         server.setPort(Integer.parseInt(args[0]));
-        server.start();
+//        server.start();
+        new Thread(server).start();
     }
 }

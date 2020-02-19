@@ -37,6 +37,7 @@ public class ClientUDP implements Client{
     public void connect() {
         try {
             socket = new DatagramSocket();
+            ServiceLog.infoLog("Client " + this.hashCode() + " started.");
         } catch (SocketException e) {
             ServiceLog.warnLog("Cannot create a datagram socket.");
         }
@@ -55,6 +56,7 @@ public class ClientUDP implements Client{
         }
         try {
             ServiceLog.infoLog("Send request: " + request);
+            request = this.hashCode() + "," + request;
             byte[] buf = request.getBytes();
             DatagramPacket packet =
                     new DatagramPacket(buf, buf.length, ip, serverPort);

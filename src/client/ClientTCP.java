@@ -42,6 +42,7 @@ public class ClientTCP implements Client{
         try {
             socket = new Socket(serverHost, serverPort);
             socket.setSoTimeout(10 * 1000);
+            ServiceLog.infoLog("Client " + this.hashCode() + " started.");
         } catch (SocketTimeoutException te) {
             ServiceLog.warnLog("Server connection timeout!");
         } catch (Exception e) {
@@ -57,7 +58,7 @@ public class ClientTCP implements Client{
         try {
             // Get client request and send to server socket
             DataOutputStream dos = new DataOutputStream (socket.getOutputStream());
-            dos.writeUTF(request);
+            dos.writeUTF(this.hashCode() + "," + request);
             ServiceLog.infoLog("Send request: " + request);
 
             // Get an input file handle from the socket and read the input
