@@ -1,7 +1,7 @@
 # KVStore
 Distributed System
 
-How to build server and client codes (including any external libraries necessary) 
+## How to build server and client codes (including any external libraries necessary) 
 
 Build server:
 javac ServerTCP.java
@@ -11,7 +11,7 @@ Build client:
 javac ClientTCP.java
 javac ClientUDP.java
 
-How to run server and client programs
+## How to run server and client programs
 
 Run server:
 java ServerTCP <port>
@@ -21,11 +21,11 @@ Run client:
 java ClientTCP <hostname> <port>
 java ClientUDP <hostname> <port>
 
-Executive summary
-Assignment overview
+## Executive summary
+### Assignment overview
 This project is built based on the previous version. In the previous version, servers adopting TCP and UDP were developed, in which only one client’s request can be processed at one time. In this project, the server is extended to use Remote Procedure Calls and take requests from different clients at the same time.
 
-Technical impression
+### Technical impression
 For RPC implementation, Java RMI is adopted. At server side, it registers the method processing clients’ request with a name. At client side, it will look up the method with the name and invoke the method remotely.
 
 For multithread server implementation, Java ThreadPool is adopted. In this implementation, server has a thread pool of ten threads. Since the service provided by this project contains a critical resource, Key-Value Store, which is actually a Map, synchronization on the service is needed to avoid conflict results while processing requests from different clients.
