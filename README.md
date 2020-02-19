@@ -1,7 +1,7 @@
 # KVStore
 Distributed System
 
-## How to build server and client codes (including any external libraries necessary) 
+## How to build server and client codes
 
 Build server:
 javac ServerTCP.java
