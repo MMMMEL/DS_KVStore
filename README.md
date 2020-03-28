@@ -10,20 +10,28 @@ javac utility/*.java client/*.java server/*.java
 ## How to run server and client programs
 
 Run server:
-java utility.Coordinator
+java server/Server2PC \<port> \<peer> \<peer> \<peer> \<peer>
+
+e.g. java server/Server2PC 1111 2222 3333 4444 5555
 
 Run client:
 java client.Client2PC localhost \<port>
+
+e.g. java client.Client2PC localhost 1111
   
 \<port> can be 1111, 2222, 3333, 4444 or 5555
   
 ## How to run jar file
 
 Run server:
-java -jar Server2PC.jar
+java -jar Server2PC.jar \<port> \<peer> \<peer> \<peer> \<peer>
+
+e.g. java -jar Server2PC.jar 1111 2222 3333 4444 5555
 
 Run client:
 java -jar Client2PC.jar localhost \<port>
+
+e.g. java -jar Server2PC.jar localhost 1111
   
 \<port> can be 1111, 2222, 3333, 4444 or 5555
 
@@ -34,14 +42,38 @@ The main purpose of this assignment is to replicate servers each of which has it
 ### Technical impression
 The implementation is based on the previous projects. In this assignment, the functions include:
 •	When a client wants to GET a value of a key, the server will get the value from its Key-Value Store.
-•	When a client wants to update (PUT or DELETE), the server will propagate this request to it peer servers and waiting for their responses. If any response is ABORTED, the request will be aborted. Otherwise, the server will tell all peers to commit the update.
-•	If a server is down, its opinion won’t will be received and won’t be counted when the proposer server collects the responses.
-•	When a down server comes back, it can still get the store that its peers have and continue to process client requests.
+•	When a client wants to update (PUT or DELETE), the server will propagate this request to it peer servers and waiting for their responses. Any updates successfully committed by client initialized the request, clients connected to other servers also get the update.
+•	If any response is ABORTED, the request will be aborted. 
 
 These functions are presented in the demo video.
 
-To implement these functions, the program has a coordinator which takes responsibility to start or restart servers and tell them their peers’ ports. Also, the coordinator keeps a Key-Value Store and when an update is committed, coordinator’s store also gets updated. When a server is started or restarted, the server will get the updated store data from coordinator.
+The program started by starting 5 servers and giving them 5 port numbers, first of which is the server’s port number and the other four are peer servers’ port numbers.
 
-In the video, the coordinator first starts all servers and then three clients connect to three different servers. When client 1 update the Key-Value Store, client 2 and client 3 can also get the update on the servers they connect to.
+Start servers:
+ 
+ 
+ 
+ 
+ 
 
-In the code, there is a pre-defined event which will happen when all servers started for 45 seconds. The event is to make a server down and come back after 20 seconds. During the down time, clients connected to other servers make update. When the down server comes back, it can also get the update happened during its down time.
+
+Then start the clients to connect with servers by offering server host name and port number. Clients can send request with PUT, GET, DELETE commands.
+
+Client 1 connected to server 1111 send requests:
+ 
+ 
+
+Client 2 connected to server 2222 can get the value of k6:
+ 
+ 
+
+When a server is down and clients connected to other servers send request, the request will be aborted.
+
+Make server 2222 down and Client 1 tries to delete k6:
+ 
+
+Log from other serves:
+ 
+
+Key k6 is not deleted.
+ 
