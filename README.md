@@ -10,6 +10,7 @@ javac client/*.java server/*.java utility/*.java
 ## How to run server and client programs
 
 Run server:
+
 java server.ServerImplPaxos 1111 2222 3333 4444 5555
 
 java server.ServerImplPaxos 2222 1111 3333 4444 5555
@@ -29,6 +30,7 @@ java client.ClientPaxos localhost \<port>
 ## How to run jar file
 
 Run server:
+
 java -jar ServerPaxos.jar 1111 2222 3333 4444 5555
 
 java -jar ServerPaxos.jar 2222 1111 3333 4444 5555
@@ -41,6 +43,7 @@ java -jar ServerPaxos.jar 5555 1111 2222 3333 5555
 
 
 Run client:
+
 java -jar ClientPaxos.jar localhost \<port>
 
 \<port> can be 1111, 2222, 3333, 4444 or 5555
