@@ -11,10 +11,15 @@ javac client/*.java server/*.java utility/*.java
 
 Run server:
 java server.ServerImplPaxos 1111 2222 3333 4444 5555
+
 java server.ServerImplPaxos 2222 1111 3333 4444 5555
+
 java server.ServerImplPaxos 3333 1111 2222 4444 5555
+
 java server.ServerImplPaxos 4444 1111 2222 3333 4444
+
 java server.ServerImplPaxos 5555 1111 2222 3333 5555
+
 
 Run client:
 java client.ClientPaxos localhost \<port>
@@ -25,10 +30,15 @@ java client.ClientPaxos localhost \<port>
 
 Run server:
 java -jar ServerPaxos.jar 1111 2222 3333 4444 5555
+
 java -jar ServerPaxos.jar 2222 1111 3333 4444 5555
+
 java -jar ServerPaxos.jar 3333 1111 2222 4444 5555
+
 java -jar ServerPaxos.jar 4444 1111 2222 3333 5555
+
 java -jar ServerPaxos.jar 5555 1111 2222 3333 5555
+
 
 Run client:
 java -jar ClientPaxos.jar localhost \<port>
