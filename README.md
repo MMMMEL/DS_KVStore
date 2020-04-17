@@ -23,6 +23,7 @@ java server.ServerImplPaxos 5555 1111 2222 3333 5555
 
 
 Run client:
+
 java client.ClientPaxos localhost \<port>
 
 \<port> can be 1111, 2222, 3333, 4444 or 5555
@@ -54,10 +55,13 @@ The main purpose of this assignment is to implement PAXOS protocol to reach cons
 
 ### Technical impression
 In this assignment, the main functions with PAXOS protocol include:
+
 •	When a client wants to GET a value of a key, the server he/she connects will get the value from its Key-Value Store.
 •	When a client wants to update (PUT or DELETE), the server will propagate this request to it peer servers (acceptors) and waiting for their responses. The acceptors will make their promise based on the PAXOS rules. Only if majority of the acceptors promise their commitment, will the proposal be accepted. 
+
 •	After the proposer server goes through the responses and found more than half of the responses are with status “PROMISED”, the proposer server will continue to ask all acceptors commit. If the final decision is ABORTED, the request will be aborted. 
 •	The server randomly (50%) fails to accept a proposal as an acceptor. In this situation, the server won’t be counted in the acceptors’ valid responses.
+
 •	If a server is totally down and then restarted, it will request information from other active peer servers for the latest suggestionID and the KVStore.
 
 These functions are presented in the demo video.
