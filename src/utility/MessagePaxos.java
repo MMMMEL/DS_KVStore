@@ -2,25 +2,19 @@ package utility;
 
 import java.io.Serializable;
 
-/**
- * This class define the message transmitted between client and servers or among servers
- * A message can be a request or a response
- */
-public class Message implements Serializable {
-
+public abstract class MessagePaxos implements Serializable {
     /**
      * Define the Action for request contained in a Message
      */
     public enum Action {GET, PUT, DELETE};
 
-
     /**
      * Define the status of Message
-     * INITIALIZED: a request is started
-     * COMMITTED: a request is committed
-     * ABORTED: a request is aborted
+     * PREPARE: a proposal is prepared by a server
+     * PROMISE: a proposal is promised by a server
+     * ACCEPT: a proposal is accepted by majority of peers
      */
-    public enum Status {INITIALIZED, COMMITTED, ABORTED};
+    public enum Status {PREPARE, PROMISE, ACCEPT, RESTART};
 
     /**
      * Define the result of an action committed
@@ -29,26 +23,18 @@ public class Message implements Serializable {
      */
     public enum Result {SUCCEEDED, FAILED, PENDING};
 
-    /**
-     * Define the Message source
-     * CLIENT: Message is sent by a client
-     * SERVER: Message is sent by a server
-     */
-    public enum Source {CLIENT, SERVER};
-
     private String key; /** key of key-value pair */
     private String value; /** value of key-value pair */
     private Action action; /** action on the key-value pair */
-    private Status status = Status.INITIALIZED; /** status of message */
     private Result result = Result.PENDING;
-    private Source source = Source.CLIENT; /** if message is from client or server */
 
-    public Message () {}
+    public MessagePaxos () {}
 
-    public Message (String key, String value, Action action) {
-        this.key = key;
-        this.value = value;
-        this.action = action;
+    public MessagePaxos (MessagePaxos message) {
+        this.key = message.key;
+        this.value = message.value;
+        this.action = message.action;
+        this.result = message.result;
     }
 
     public String getKey() {
@@ -75,28 +61,12 @@ public class Message implements Serializable {
         this.action = action;
     }
 
-    public Status getStatus() {
-        return status;
-    }
-
-    public void setStatus(Status status) {
-        this.status = status;
-    }
-
     public Result getResult() {
         return result;
     }
 
     public void setResult(Result result) {
         this.result = result;
-    }
-
-    public Source getSource() {
-        return source;
-    }
-
-    public void setSource(Source source) {
-        this.source = source;
     }
 
     public String getMessage() {

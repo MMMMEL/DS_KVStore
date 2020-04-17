@@ -1,22 +1,20 @@
 package client;
 
-import utility.Message;
-import utility.Service2PC;
-import utility.ServiceLog;
+import server.ServerPaxos;
+import utility.*;
 
 import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
 import java.util.Scanner;
 
-public class Client2PC {
-
+public class ClientPaxos {
     private String serverHost;
     private int serverPort;
-    private Service2PC service;
+    private ServerPaxos service;
 
-    public Client2PC () {}
+    public ClientPaxos () {}
 
-    public Client2PC (String host, int port) {
+    public ClientPaxos (String host, int port) {
         this.serverHost = host;
         this.serverPort = port;
     }
@@ -41,27 +39,27 @@ public class Client2PC {
     }
 
     public void connect() throws Exception{
-        service = (Service2PC) LocateRegistry.getRegistry(serverHost, serverPort).lookup("Service2PC");
+        service = (ServerPaxos) LocateRegistry.getRegistry(serverHost, serverPort).lookup("ServerPaxos");
     }
 
-    public Message send(Message request) throws RemoteException {
-//        try {
-        Message response = service.process(request);
+    public MessagePaxos send(ClientMessage request) throws RemoteException {
+        MessagePaxos response = service.process(request);
         return response;
-//        } catch (RemoteException e) {
-//            ServiceLog.warnLog("Client2PC send request error!\n" + e.getMessage());
-//        }
-//        return null;
     }
 
-    private static Message generateMessage(String command) {
+    public ServerMessage send(ServerMessage request) throws RemoteException {
+        ServerMessage response = service.process(request);
+        return response;
+    }
+
+    private static ClientMessage generateClientMessage (String command) {
         String[] elements = command.split(" ");
         if (elements.length < 2) {
             ServiceLog.warnLog("Invalid request with " + elements.length + " argument!");
             return null;
         }
         String action = elements[0].toUpperCase();
-        Message message = new Message();
+        ClientMessage message = new ClientMessage ();
 
         switch (action) {
             case "PUT":
@@ -69,7 +67,7 @@ public class Client2PC {
                     ServiceLog.warnLog("Invalid PUT request with " + elements.length + " arguments!");
                     return null;
                 }
-                message.setAction(Message.Action.PUT);
+                message.setAction(MessagePaxos.Action.PUT);
                 message.setKey(elements[1]);
                 message.setValue(elements[2]);
                 break;
@@ -78,7 +76,7 @@ public class Client2PC {
                     ServiceLog.warnLog("Invalid GET request with " + elements.length + " arguments!");
                     return null;
                 }
-                message.setAction(Message.Action.GET);
+                message.setAction(MessagePaxos.Action.GET);
                 message.setKey(elements[1]);
                 break;
             case "DELETE":
@@ -86,7 +84,7 @@ public class Client2PC {
                     ServiceLog.warnLog("Invalid DELETE request with " + elements.length + " arguments!");
                     return null;
                 }
-                message.setAction(Message.Action.DELETE);
+                message.setAction(MessagePaxos.Action.DELETE);
                 message.setKey(elements[1]);
                 break;
             default:
@@ -113,13 +111,13 @@ public class Client2PC {
         String ip = args[0];
         int port = Integer.parseInt(args[1]);
 
-        Client2PC client = new Client2PC();
+        ClientPaxos client = new ClientPaxos();
         client.setServerHost(ip);
         client.setServerPort(port);
         try{
             client.connect();
         } catch (Exception e) {
-            ServiceLog.warnLog("Client2PC connection to " + client.serverHost + " " + client.serverPort + " start error!\n"
+            ServiceLog.warnLog("ClientPaxos connection to " + client.serverHost + " " + client.serverPort + " start error!\n"
                     + e.getMessage());
         }
 
@@ -128,14 +126,14 @@ public class Client2PC {
         Scanner scanner = new Scanner (System.in);
         while (true) {
             String command = scanner.nextLine();
-            Message request = generateMessage(command);
+            ClientMessage request = generateClientMessage(command);
             if (request != null) {
                 try {
                     ServiceLog.infoLog("Sending request: " + command);
-                    Message response = client.send(request);
+                    MessagePaxos response = client.send(request);
                     ServiceLog.infoLog(response.getMessage());
                 } catch (RemoteException e) {
-                    ServiceLog.warnLog("Client2PC send request error!\n" + e.getMessage());
+                    ServiceLog.warnLog("ClientPaxos send request error!\n" + e.getMessage());
                 }
             }
         }

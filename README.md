@@ -3,43 +3,45 @@ Distributed System
 
 ## How to build server and client codes
 
-Build server:
-javac ServerTCP.java
-javac ServerUDP.java
+get into the src folder
 
-Build client:
-javac ClientTCP.java
-javac ClientUDP.java
+javac utility/*.java client/*.java server/*.java
 
 ## How to run server and client programs
 
 Run server:
-java ServerTCP <port>
-java ServerUDP <port>
+java utility.Coordinator
 
 Run client:
-java ClientTCP <hostname> <port>
-java ClientUDP <hostname> <port>
+java client.Client2PC localhost \<port>
+  
+\<port> can be 1111, 2222, 3333, 4444 or 5555
+  
+## How to run jar file
+
+Run server:
+java -jar Server2PC.jar
+
+Run client:
+java -jar Client2PC.jar localhost \<port>
+  
+\<port> can be 1111, 2222, 3333, 4444 or 5555
 
 ## Executive summary
 ### Assignment overview
-This project is built based on the previous version. In the previous version, servers adopting TCP and UDP were developed, in which only one client’s request can be processed at one time. In this project, the server is extended to use Remote Procedure Calls and take requests from different clients at the same time.
+The main purpose of this assignment is to replicate servers each of which has its own data, i.e. Key-Value Store. Different clients can connect to different servers and get information or change data. When a client change data through its connection to a server, the other servers should also get the proposal and when all active servers agree to commit the update, the proposal will be committed on all servers.
 
 ### Technical impression
-For RPC implementation, Java RMI is adopted. At server side, it registers the method processing clients’ request with a name. At client side, it will look up the method with the name and invoke the method remotely.
+The implementation is based on the previous projects. In this assignment, the functions include:
+•	When a client wants to GET a value of a key, the server will get the value from its Key-Value Store.
+•	When a client wants to update (PUT or DELETE), the server will propagate this request to it peer servers and waiting for their responses. If any response is ABORTED, the request will be aborted. Otherwise, the server will tell all peers to commit the update.
+•	If a server is down, its opinion won’t will be received and won’t be counted when the proposer server collects the responses.
+•	When a down server comes back, it can still get the store that its peers have and continue to process client requests.
 
-For multithread server implementation, Java ThreadPool is adopted. In this implementation, server has a thread pool of ten threads. Since the service provided by this project contains a critical resource, Key-Value Store, which is actually a Map, synchronization on the service is needed to avoid conflict results while processing requests from different clients.
+These functions are presented in the demo video.
 
-In the demo, the key-value store will be initialized with 5 key-value pairs:
+To implement these functions, the program has a coordinator which takes responsibility to start or restart servers and tell them their peers’ ports. Also, the coordinator keeps a Key-Value Store and when an update is committed, coordinator’s store also gets updated. When a server is started or restarted, the server will get the updated store data from coordinator.
 
-  store.put("k1", "v1");
-  store.put("k2", "v2");
-  store.put("k3", "v3");
-  store.put("k4", "v4");
-  store.put("k5", "v5");
+In the video, the coordinator first starts all servers and then three clients connect to three different servers. When client 1 update the Key-Value Store, client 2 and client 3 can also get the update on the servers they connect to.
 
-Each client will send a set of requests.
-
-If two clients are sending the requests at the same time, the response can be different. For example, the second client who sends the delete request of “k1”, “k2”, “k3”, “k4”, “k5” won’t successfully delete them because those keys are already deleted by the first client who sent the same request.
-
-For a clear vision, when clients send their request, their hash codes are sent together. When server get a request, it can get from which client that request is sent.
+In the code, there is a pre-defined event which will happen when all servers started for 45 seconds. The event is to make a server down and come back after 20 seconds. During the down time, clients connected to other servers make update. When the down server comes back, it can also get the update happened during its down time.
