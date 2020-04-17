@@ -14,9 +14,9 @@ java utility.Coordinator
 
 Run client:
 java client.Client2PC localhost \<port>
-  
+
 \<port> can be 1111, 2222, 3333, 4444 or 5555
-  
+
 ## How to run jar file
 
 Run server:
@@ -24,7 +24,7 @@ java -jar Server2PC.jar
 
 Run client:
 java -jar Client2PC.jar localhost \<port>
-  
+
 \<port> can be 1111, 2222, 3333, 4444 or 5555
 
 ## Executive summary
